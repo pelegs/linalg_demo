@@ -48,6 +48,14 @@ class Grid:
             for pnt in row:
                 pnt.make_neighbors(self)
 
+    def reset(self):
+        self.points = [[point(self.sx*(i-self.nx/2), self.sy*(j-self.ny/2), i, j)
+                        for j in range(self.ny)]
+                        for i in range(self.nx)]
+        for row in self.points:
+            for pnt in row:
+                pnt.make_neighbors(self)
+
     def draw_points(self, surface, center):
         for row in self.points:
             for pnt in row:
@@ -75,9 +83,17 @@ def rotate(angle):
     return np.array([[c, -s],
                      [s,  c]])
 
+def apply_matrix(M, grid, i, j, a):
+    grid.reset()
+    M[i, j] += a
+    print(M)
+    grid.transform(M)
+
 
 g = Grid(25, 25, 40, 40)
 a = 0.01
+M = np.array([[1, 0],
+              [0, 1]]).astype(np.float64)
 
 pygame.init()
 screen = pygame.display.set_mode((800, 800))
@@ -89,8 +105,23 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-    g.transform(rotate(a))
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                apply_matrix(M, g, 0, 0, +0.1)
+            if event.key == pygame.K_a:
+                apply_matrix(M, g, 0, 0, -0.1)
+            if event.key == pygame.K_w:
+                apply_matrix(M, g, 0, 1, +0.1)
+            if event.key == pygame.K_s:
+                apply_matrix(M, g, 0, 1, -0.1)
+            if event.key == pygame.K_e:
+                apply_matrix(M, g, 1, 0, +0.1)
+            if event.key == pygame.K_d:
+                apply_matrix(M, g, 1, 0, -0.1)
+            if event.key == pygame.K_r:
+                apply_matrix(M, g, 1, 1, +0.1)
+            if event.key == pygame.K_f:
+                apply_matrix(M, g, 1, 1, -0.1)
 
     # Draw
     screen.fill([0, 0, 0])
